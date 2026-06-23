@@ -1,4 +1,4 @@
-# 🍪 Cookie Cleaner
+# Cookie Cleaner
 
 A lightweight browser extension to clear cookies for the current website.
 
