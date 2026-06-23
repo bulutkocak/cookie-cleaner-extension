@@ -2,7 +2,7 @@
 
 A lightweight browser extension to clear cookies for the current website.
 
-## Screenshots
+## Preview
 
 ![Cookie Cleaner popup](https://raw.githubusercontent.com/bulutkocak/cookie-cleaner-extension/refs/heads/main/screenshots/example.png)
 
