@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Cookie Cleaner",
+  "version": "1.0.0",
+  "description": "Clear cookies for the current website",
+  "permissions": [
+    "cookies",
+    "tabs",
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Cookie Cleaner"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cookie-cleaner@extension",
+      "strict_min_version": "109.0"
+    }
+  }
+}
