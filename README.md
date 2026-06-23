@@ -33,6 +33,7 @@ A lightweight browser extension to clear cookies for the current website.
 2. The current website will be displayed
 3. Click **Clear Cookies** to remove all cookies for that site
 4. The page will reload automatically
+5. The "Last cleaned" timestamp will update after each cleanup
 
 ## Permissions
 
