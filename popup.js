@@ -1,4 +1,4 @@
-const api = typeof browser !== "undefined" ? browser : chrome;
+// api, cleanHostname, getSettings, saveSettings come from clean.js
 
 const siteEl = document.getElementById("site");
 const statusEl = document.getElementById("status");
@@ -6,6 +6,10 @@ const clearBtn = document.getElementById("clearBtn");
 const faviconFallback = document.getElementById("faviconFallback");
 const faviconWrap = document.getElementById("faviconWrap");
 const lastCleanedEl = document.getElementById("lastCleaned");
+const footerStatsEl = document.getElementById("footerStats");
+const settingsBtn = document.getElementById("settingsBtn");
+const includeSubdomainsToggle = document.getElementById("includeSubdomains");
+const clearLocalStorageToggle = document.getElementById("clearLocalStorage");
 
 let hostname = null;
 
@@ -33,8 +37,37 @@ async function updateLastCleanedInfo(host) {
   }
 }
 
+async function updateFooterStats() {
+  try {
+    const stored = await api.storage.local.get("stats");
+    const stats = stored.stats || { totalRuns: 0, totalCookies: 0 };
+    if (stats.totalRuns > 0) {
+      footerStatsEl.textContent = `${stats.totalCookies} cookies cleared across ${stats.totalRuns} run${stats.totalRuns !== 1 ? "s" : ""}`;
+    } else {
+      footerStatsEl.textContent = "";
+    }
+  } catch (_) {
+    footerStatsEl.textContent = "";
+  }
+}
+
+async function loadToggles() {
+  const settings = await getSettings();
+  includeSubdomainsToggle.checked = settings.includeSubdomains;
+  clearLocalStorageToggle.checked = settings.clearLocalStorage;
+}
+
+async function persistToggle(key, value) {
+  const settings = await getSettings();
+  settings[key] = value;
+  await saveSettings(settings);
+}
+
 async function initialize() {
   try {
+    await loadToggles();
+    await updateFooterStats();
+
     const tab = await getCurrentTab();
 
     if (!tab?.url) {
@@ -73,55 +106,18 @@ async function initialize() {
   }
 }
 
-async function clearCookiesForSite() {
-  const cookies = await api.cookies.getAll({});
-  let deleted = 0;
-
-  for (const cookie of cookies) {
-    const cookieDomain = cookie.domain.replace(/^\./, "");
-    const matches = hostname === cookieDomain || hostname.endsWith("." + cookieDomain);
-
-    if (!matches) continue;
-
-    try {
-      const protocol = cookie.secure ? "https:" : "http:";
-      const removeParams = {
-        url: `${protocol}//${cookieDomain}${cookie.path}`,
-        name: cookie.name
-      };
-
-      if (cookie.storeId !== undefined) {
-        removeParams.storeId = cookie.storeId;
-      }
-
-      await api.cookies.remove(removeParams);
-      deleted++;
-    } catch (_) {}
-  }
-
-  return deleted;
-}
-
-async function saveCleanedTimestamp() {
-  if (!hostname) return;
-  const now = new Date();
-  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const dateString = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  const formattedDate = `${dateString}, ${timeString}`;
-  
-  await api.storage.local.set({ [hostname]: formattedDate });
-}
-
 async function clearSiteData() {
+  if (!hostname) return;
+
   clearBtn.disabled = true;
-  setStatus("working", `<span class="spinner"></span>Clearing cookies for ${hostname}…`);
+  setStatus("working", `<span class="spinner"></span>Clearing data for ${hostname}…`);
 
   try {
-    const cookieCount = await clearCookiesForSite();
-
-    await saveCleanedTimestamp();
+    const { cookieCount } = await cleanHostname(hostname);
 
     setStatus("success", `✓ Cleared ${cookieCount} cookie${cookieCount !== 1 ? "s" : ""}`);
+    await updateLastCleanedInfo(hostname);
+    await updateFooterStats();
 
     const tab = await getCurrentTab();
     if (tab?.id) {
@@ -137,4 +133,21 @@ async function clearSiteData() {
 }
 
 clearBtn.addEventListener("click", clearSiteData);
+
+includeSubdomainsToggle.addEventListener("change", () => {
+  persistToggle("includeSubdomains", includeSubdomainsToggle.checked);
+});
+
+clearLocalStorageToggle.addEventListener("change", () => {
+  persistToggle("clearLocalStorage", clearLocalStorageToggle.checked);
+});
+
+settingsBtn.addEventListener("click", () => {
+  if (api.runtime.openOptionsPage) {
+    api.runtime.openOptionsPage();
+  } else {
+    window.open(api.runtime.getURL("options.html"));
+  }
+});
+
 initialize();

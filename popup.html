@@ -15,7 +15,6 @@
     background: #0f0f13;
     color: #e8e6f0;
     font-family: "Inter", system-ui, -apple-system, sans-serif;
-    overflow: hidden;
   }
 
   .header {
@@ -38,6 +37,8 @@
     flex-shrink: 0;
   }
 
+  .header-text { flex: 1; }
+
   .header-text h1 {
     font-size: 14px;
     font-weight: 600;
@@ -49,6 +50,22 @@
     font-size: 11px;
     color: #6b6880;
     margin-top: 1px;
+  }
+
+  .settings-btn {
+    background: none;
+    border: none;
+    color: #6b6880;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 6px;
+    line-height: 1;
+  }
+
+  .settings-btn:hover {
+    color: #a78bfa;
+    background: #16161f;
   }
 
   .site-card {
@@ -112,7 +129,7 @@
   }
 
   .last-cleaned {
-    margin: 0 16px 16px;
+    margin: 0 16px 12px;
     padding-left: 4px;
     font-size: 11px;
     color: #6b6880;
@@ -121,10 +138,72 @@
     gap: 4px;
   }
 
+  .options-row {
+    margin: 0 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #16161f;
+    border: 1px solid #1e1e2a;
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .toggle-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #c4c1d6;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #2a2a38;
+    transition: 0.15s;
+    border-radius: 18px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #e8e6f0;
+    transition: 0.15s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: #7c3aed;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(14px);
+  }
+
   .clear-btn {
     display: block;
     width: calc(100% - 32px);
-    margin: 0 16px 16px;
+    margin: 0 16px 10px;
     padding: 11px;
     background: linear-gradient(135deg, #7c3aed, #4f46e5);
     color: white;
@@ -135,8 +214,6 @@
     letter-spacing: 0.01em;
     cursor: pointer;
     transition: opacity 0.15s, transform 0.1s;
-    position: relative;
-    overflow: hidden;
   }
 
   .clear-btn:hover:not(:disabled) {
@@ -202,6 +279,13 @@
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
+
+  .footer-stats {
+    margin: 0 16px 16px;
+    font-size: 10.5px;
+    color: #4f4b66;
+    text-align: center;
+  }
 </style>
 </head>
 <body>
@@ -210,8 +294,9 @@
   <div class="icon">🍪</div>
   <div class="header-text">
     <h1>Cookie Cleaner</h1>
-    <p>Clear cookies instantly</p>
+    <p>Clear cookies and site data instantly</p>
   </div>
+  <button class="settings-btn" id="settingsBtn" title="Settings">⚙️</button>
 </div>
 
 <div class="site-card">
@@ -226,10 +311,30 @@
 
 <div class="last-cleaned" id="lastCleaned"></div>
 
+<div class="options-row">
+  <div class="toggle-line">
+    <span>Include subdomains</span>
+    <label class="switch">
+      <input type="checkbox" id="includeSubdomains">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="toggle-line">
+    <span>Also clear local/site storage</span>
+    <label class="switch">
+      <input type="checkbox" id="clearLocalStorage">
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
 <button class="clear-btn" id="clearBtn">Clear Cookies</button>
 
 <div class="status" id="status"></div>
 
+<div class="footer-stats" id="footerStats"></div>
+
+<script src="clean.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>

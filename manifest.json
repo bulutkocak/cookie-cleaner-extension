@@ -1,20 +1,47 @@
 {
   "manifest_version": 3,
   "name": "Cookie Cleaner",
-  "version": "1.0.0",
-  "description": "Clear cookies for the current website",
+  "version": "2.0.0",
+  "description": "Clear cookies and site data for the current website, with subdomain and auto-clean support",
   "permissions": [
     "cookies",
     "tabs",
     "activeTab",
-    "storage"
+    "storage",
+    "browsingData",
+    "notifications"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Cookie Cleaner"
+    "default_title": "Cookie Cleaner",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "commands": {
+    "clear-current-site": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U",
+        "mac": "Command+Shift+U"
+      },
+      "description": "Clear cookies for the current site"
+    }
   },
   "browser_specific_settings": {
     "gecko": {
